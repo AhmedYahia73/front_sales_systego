@@ -69,8 +69,28 @@ const Visits = () => {
     const handleStatusChange = async (visit, newStatusId) => {
         // الـ Payload بيحتوي على الـ status_id والـ status فقط زي ما طلبتي
         const payload = {
-            status_id: newStatusId,
-            status: "visit"
+            status_id: newStatusId
+        };
+
+        const result = await updateVisit({
+            method: "PUT", // لو الباك إند بيطلب PATCH للتعديل الجزئي، غيريها لـ PATCH
+            url: `/api/admin/visits/${visit.id}`,
+            data: payload
+        });
+
+        if (result.success) {
+            toast?.success?.("Status updated successfully");
+            refresh?.();
+        } else {
+            toast?.error?.("Failed to update status");
+        }
+    };
+
+    // ---- Update Status flow ----
+    const handleSalesStatusChange = async (visit, status) => {
+        // الـ Payload بيحتوي على الـ status_id والـ status فقط زي ما طلبتي
+        const payload = {
+            status: status
         };
 
         const result = await updateVisit({
@@ -95,17 +115,16 @@ const Visits = () => {
             accessorKey: "visit_status",
             header: "Status",
             render: (row) => {
-                // بنجيب الـ id الخاص بالحالة عشان يكون هو الـ value للـ select
-                const currentStatus = statusList.find(s => s.name === row.visit_status);
-                const currentStatusId = currentStatus ? currentStatus.id : (row.status_id || "");
+                const currentStatus = statusList.find((s) => s.name === row.visit_status);
+                const currentStatusId = currentStatus ? currentStatus.id : row.status_id || "";
 
                 return (
                     <select
-                        className={`px-2 py-1 rounded-full text-xs font-medium border-0 cursor-pointer focus:ring-2 focus:ring-offset-1 transition-colors ${statusColors[row.visit_status] || "bg-gray-100 text-gray-800"
-                            }`}
+                        className={`px-2 py-1 rounded-full text-xs font-medium border-0 cursor-pointer focus:ring-2 focus:ring-offset-1 transition-colors ${
+                            statusColors[row.visit_status] || "bg-gray-100 text-gray-800"
+                        }`}
                         value={currentStatusId}
                         onChange={(e) => {
-                            // بنبعت القيمة كـ String عشان الـ UUID
                             if (e.target.value) handleStatusChange(row, e.target.value);
                         }}
                         onClick={(e) => e.stopPropagation()}
@@ -114,6 +133,34 @@ const Visits = () => {
                         {statusList.map((s) => (
                             <option key={s.id} value={s.id} className="bg-white text-black">
                                 {s.name}
+                            </option>
+                        ))}
+                    </select>
+                );
+            },
+        },
+        {
+            accessorKey: "status",
+            header: "Sales Status",
+            render: (row) => {
+                const currentStatus = sales_statues.find((s) => s.name === row.status);
+                const currentStatusId = currentStatus ? currentStatus.id : row.status || "";
+
+                return (
+                    <select
+                        className={`px-2 py-1 rounded-full text-xs font-medium border-0 cursor-pointer focus:ring-2 focus:ring-offset-1 transition-colors ${
+                            statusColors[row.status] || "bg-gray-100 text-gray-800"
+                        }`}
+                        value={currentStatusId}
+                        onChange={(e) => {
+                            if (e.target.value) handleSalesStatusChange(row, e.target.value);
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <option value="" disabled>Select Status</option>
+                        {sales_statues.map((s) => (
+                            <option key={s} value={s} className="bg-white text-black">
+                                {s}
                             </option>
                         ))}
                     </select>
