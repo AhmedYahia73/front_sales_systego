@@ -46,7 +46,8 @@ const Visits = () => {
 
     const handleDeleteClick = (visit) => {
         setVisitToDelete(visit);
-    };
+    };    
+    const sales_statues = ["visit", "sales", "delivered"]; 
 
     const handleDeleteConfirm = async () => {
         if (!visitToDelete) return;
