@@ -6,6 +6,7 @@ import { LoginPage } from '@/components/LoginPage';
 import Home from '@/Pages/Home';
 import Visits from '@/Pages/Visits/Visits';
 import VisitsAdd from '@/Pages/Visits/VisitsAdd';
+import Sales from '@/Pages/Sales/Sales';
 import WishList from '@/Pages/WishList/WishList';
 
 
@@ -29,6 +30,9 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <Navigate to="/home" replace /> },
       { path: 'home', element: <Home /> },
+      
+      // مثال لصفحة visits
+      { path: 'sales', element: <Sales /> },
       
       // مثال لصفحة visits
       { path: 'visits', element: <Visits /> },
