@@ -1,11 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { DataTable } from "@/components/DataTable";
-import { DeleteDialog } from "@/components/DeleteDialog";
 import { useGet } from "@/hooks/useGet";
-import { useMutation } from "@/hooks/useMutation";
 import { MapPin, StickyNote } from "lucide-react";
-import { toast } from "sonner";
 
 // استيراد مكونات الـ Dialog والمكونات الإضافية للزرار
 import { Button } from "@/components/ui/button";
@@ -17,37 +14,42 @@ import {
     DialogDescription,
 } from "@/components/ui/dialog";
 
-const statusColors = {
-    "Negotiation": "bg-yellow-100 text-yellow-800",
-    "Sales": "bg-gray-100 text-gray-800",
-    "Deliverd": "bg-green-100 text-green-800",
-};
-
-const formatDate = (dateString) => {
-    if (!dateString) return "-";
-    const date = new Date(dateString);
-    return date.toLocaleString("ar-EG", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-    });
-};
-
 const Sales = () => {
     const navigate = useNavigate();
 
-    // ---- Filter State ----
-    const [selectedSalesFilter, setSelectedSalesFilter] = useState("");
+    // ---- Search & Pagination States ----
+    const [searchQuery, setSearchQuery] = useState("");
+    const [debouncedSearch, setDebouncedSearch] = useState("");
+    const [page, setPage] = useState(1);
 
-    // ---- Notes State (FIX 1: إضافته هنا بدلاً من نسيه) ----
+    // ---- Notes State ----
     const [selectedNotes, setSelectedNotes] = useState(null);
 
+    // ---- Debounce Search Logic ----
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedSearch(searchQuery);
+            setPage(1); // العودة للصفحة الأولى عند كل بحث جديد
+        }, 500);
 
-    const { data: response, loading: isLoading, refresh } = useGet("/api/admin/visits/sales");
-    const visits = response?.data?.allVisits || []; 
- 
+        return () => clearTimeout(handler);
+    }, [searchQuery]);
+
+    // ---- Build Query Parameters for Backend ----
+    const queryParams = new URLSearchParams();
+    queryParams.append("page", page.toString());
+    queryParams.append("limit", "10");
+
+    if (debouncedSearch.trim()) {
+        queryParams.append("search", debouncedSearch.trim());
+    }
+
+    const salesVisitsApiUrl = `/api/admin/visits/sales?${queryParams.toString()}`;
+
+    // ---- Fetch Visits Data ----
+    const { data: response, loading: isLoading } = useGet(salesVisitsApiUrl);
+    const visits = response?.data?.allVisits || [];
+    const paginationData = response?.data?.pagination || { total: 0, page: 1, limit: 10, totalPages: 1 };
 
     const columns = [
         { accessorKey: "name", header: "Name" },
@@ -98,15 +100,43 @@ const Sales = () => {
 
     return (
         <div className="container mx-auto py-10">
-            {/* Sales Filter Section */} 
-
             <DataTable
-                title="Visits Management"
+                title="Sales Visits Management"
                 columns={columns}
                 data={visits}
                 isLoading={isLoading}
+                search_auto={false} // إيقاف الفلترة المحلية
+                showSearchInput={true} // حقل البحث داخل هيدر الجدول الموحد
+                searchValue={searchQuery}
+                onSearchChange={(value) => setSearchQuery(value)}
+                searchPlaceholder="Search sales visits by name, phone, or address..."
             />
- 
+
+            {/* Pagination Controls */}
+            <div className="flex items-center justify-between mt-4 bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+                <div className="text-sm text-gray-600">
+                    Showing page <span className="font-semibold">{paginationData.page}</span> of{" "}
+                    <span className="font-semibold">{paginationData.totalPages || 1}</span> (Total: {paginationData.total})
+                </div>
+                <div className="flex gap-2">
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setPage((old) => Math.max(old - 1, 1))}
+                        disabled={page === 1 || isLoading}
+                    >
+                        Previous
+                    </Button>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setPage((old) => Math.min(old + 1, paginationData.totalPages))}
+                        disabled={page >= paginationData.totalPages || isLoading}
+                    >
+                        Next
+                    </Button>
+                </div>
+            </div>
 
             {/* PopUp / Modal لعرض الـ Notes */}
             <Dialog open={!!selectedNotes} onOpenChange={() => setSelectedNotes(null)}>

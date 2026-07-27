@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { DataTable } from "@/components/DataTable";
 import { DeleteDialog } from "@/components/DeleteDialog";
 import { useGet } from "@/hooks/useGet";
 import { useMutation } from "@/hooks/useMutation";
 import { MapPin } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
 const statusColors = {
@@ -28,13 +29,39 @@ const formatDate = (dateString) => {
 const Visits = () => {
     const navigate = useNavigate();
 
+    // ---- Search & Pagination States ----
+    const [searchQuery, setSearchQuery] = useState("");
+    const [debouncedSearch, setDebouncedSearch] = useState("");
+    const [page, setPage] = useState(1);
+
+    // ---- Debounce Search Logic ----
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedSearch(searchQuery);
+            setPage(1); // العودة للصفحة الأولى عند كل بحث جديد
+        }, 500);
+
+        return () => clearTimeout(handler);
+    }, [searchQuery]);
+
+    // ---- Build Query Parameters for Backend ----
+    const queryParams = new URLSearchParams();
+    queryParams.append("page", page.toString());
+    queryParams.append("limit", "10");
+
+    if (debouncedSearch.trim()) {
+        queryParams.append("search", debouncedSearch.trim());
+    }
+
+    const visitsApiUrl = `/api/admin/visits?${queryParams.toString()}`;
+
     // ---- Get Visits Data ----
-    const { data: response, loading: isLoading, refresh } = useGet("/api/admin/visits");
+    const { data: response, loading: isLoading, refresh } = useGet(visitsApiUrl);
     const visits = response?.data?.allVisits || [];
+    const paginationData = response?.data?.pagination || { total: 0, page: 1, limit: 10, totalPages: 1 };
 
     // ---- Get Status List for the Select Dropdown ----
     const { data: statusResponse } = useGet("/api/admin/visits/lists");
-    // جلب قائمة الحالات بناءً على شكل الاستجابة
     const statusList = statusResponse?.visit_status || statusResponse?.data?.visit_status || [];
 
     // ---- Mutations ----
@@ -68,13 +95,12 @@ const Visits = () => {
 
     // ---- Update Status flow ----
     const handleStatusChange = async (visit, newStatusId) => {
-        // الـ Payload بيحتوي على الـ status_id والـ status فقط زي ما طلبتي
         const payload = {
             status_id: newStatusId
         };
 
         const result = await updateVisit({
-            method: "PUT", // لو الباك إند بيطلب PATCH للتعديل الجزئي، غيريها لـ PATCH
+            method: "PUT",
             url: `/api/admin/visits/${visit.id}`,
             data: payload
         });
@@ -87,15 +113,13 @@ const Visits = () => {
         }
     };
 
-    // ---- Update Status flow ----
     const handleSalesStatusChange = async (visit, status) => {
-        // الـ Payload بيحتوي على الـ status_id والـ status فقط زي ما طلبتي
         const payload = {
             status: status
         };
 
         const result = await updateVisit({
-            method: "PUT", // لو الباك إند بيطلب PATCH للتعديل الجزئي، غيريها لـ PATCH
+            method: "PUT",
             url: `/api/admin/visits/${visit.id}`,
             data: payload
         });
@@ -202,7 +226,38 @@ const Visits = () => {
                 columns={columns}
                 data={visits}
                 isLoading={isLoading}
+                search_auto={false} // إيقاف الفلترة المحلية بالكامل
+                showSearchInput={true} // حقل بحث واحد فقط يظهر داخل هيدر الجدول
+                searchValue={searchQuery}
+                onSearchChange={(value) => setSearchQuery(value)}
+                searchPlaceholder="Search visits by name, phone, or address..."
             />
+
+            {/* Pagination Controls */}
+            <div className="flex items-center justify-between mt-4 bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+                <div className="text-sm text-gray-600">
+                    Showing page <span className="font-semibold">{paginationData.page}</span> of{" "}
+                    <span className="font-semibold">{paginationData.totalPages || 1}</span> (Total: {paginationData.total})
+                </div>
+                <div className="flex gap-2">
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setPage((old) => Math.max(old - 1, 1))}
+                        disabled={page === 1 || isLoading}
+                    >
+                        Previous
+                    </Button>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setPage((old) => Math.min(old + 1, paginationData.totalPages))}
+                        disabled={page >= paginationData.totalPages || isLoading}
+                    >
+                        Next
+                    </Button>
+                </div>
+            </div>
 
             <DeleteDialog
                 isOpen={!!visitToDelete}
