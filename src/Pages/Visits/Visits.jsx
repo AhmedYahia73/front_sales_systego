@@ -7,6 +7,13 @@ import { useMutation } from "@/hooks/useMutation";
 import { MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+} from "@/components/ui/dialog";
 
 const statusColors = {
     "Negotiation": "bg-yellow-100 text-yellow-800",
@@ -28,6 +35,15 @@ const formatDate = (dateString) => {
 
 const Visits = () => {
     const navigate = useNavigate();
+
+    // ---- Product Selection States ----
+    const [productModalOpen, setProductModalOpen] = useState(false);
+    const [pendingSalesStatusVisit, setPendingSalesStatusVisit] = useState(null);
+    const [selectedProductId, setSelectedProductId] = useState("");
+
+    // ---- Get Products Data ----
+    const { data: productsRes } = useGet("/api/admin/products");
+    const productsList = productsRes?.data?.products || productsRes?.products || productsRes?.data || [];
 
     // ---- Search & Pagination States ----
     const [searchQuery, setSearchQuery] = useState("");
@@ -143,6 +159,13 @@ const Visits = () => {
     };
 
     const handleSalesStatusChange = async (visit, status) => {
+        if (status === "sales") {
+            setPendingSalesStatusVisit(visit);
+            setSelectedProductId(visit.product_id || "");
+            setProductModalOpen(true);
+            return;
+        }
+
         const payload = {
             status: status
         };
@@ -161,10 +184,36 @@ const Visits = () => {
         }
     };
 
+    const confirmProductEnrollment = async () => {
+        if (!pendingSalesStatusVisit || !selectedProductId) {
+            toast.error("Please select a product");
+            return;
+        }
+        const result = await updateVisit({
+            method: "PUT",
+            url: `/api/admin/visits/${pendingSalesStatusVisit.id}`,
+            data: { status: "sales", product_id: selectedProductId },
+        });
+        
+        if (result.success) {
+            toast.success("Status updated and product enrolled successfully");
+            setProductModalOpen(false);
+            setPendingSalesStatusVisit(null);
+            refresh?.();
+        } else {
+            toast.error("Failed to update status and enroll product");
+        }
+    };
+
     const columns = [
         { accessorKey: "name", header: "Name" },
         { accessorKey: "address", header: "Address" },
         { accessorKey: "phone", header: "Phone" },
+        {
+            accessorKey: "product",
+            header: "Product",
+            render: (row) => row.product?.name || row.product_name || "-",
+        },
         {
             accessorKey: "visit_status",
             header: "Status",
@@ -327,6 +376,34 @@ const Visits = () => {
                     </Button>
                 </div>
             </div>
+
+            {/* Product Enrollment Dialog */}
+            <Dialog open={productModalOpen} onOpenChange={setProductModalOpen}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle>Enroll Product for Sales</DialogTitle>
+                        <DialogDescription>
+                            Please select a product to enroll this visit as a sale.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="py-4">
+                        <select 
+                            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            value={selectedProductId}
+                            onChange={(e) => setSelectedProductId(e.target.value)}
+                        >
+                            <option value="">Select a Product</option>
+                            {productsList.map(p => (
+                                <option key={p.id} value={p.id}>{p.name}</option>
+                            ))}
+                        </select>
+                    </div>
+                    <div className="flex justify-end gap-2">
+                        <Button variant="outline" onClick={() => setProductModalOpen(false)}>Cancel</Button>
+                        <Button onClick={confirmProductEnrollment}>Confirm</Button>
+                    </div>
+                </DialogContent>
+            </Dialog>
 
             <DeleteDialog
                 isOpen={!!visitToDelete}
