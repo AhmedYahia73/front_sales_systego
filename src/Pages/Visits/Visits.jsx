@@ -51,6 +51,7 @@ const Visits = () => {
     const [searchQuery, setSearchQuery] = useState("");
     const [debouncedSearch, setDebouncedSearch] = useState("");
     const [page, setPage] = useState(1);
+    const [selectedStatusFilter, setSelectedStatusFilter] = useState("");
 
     // ---- Month & Year Filter States ----
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear().toString());
@@ -89,6 +90,10 @@ const Visits = () => {
     if (debouncedSearch.trim()) {
         queryParams.append("search", debouncedSearch.trim());
     }
+    
+    if (selectedStatusFilter) {
+        queryParams.append("status_id", selectedStatusFilter);
+    }
 
     if (selectedMonths.length > 0 && selectedYear) {
         queryParams.append("months", selectedMonths.join(','));
@@ -101,6 +106,11 @@ const Visits = () => {
     const { data: response, loading: isLoading, refresh } = useGet(visitsApiUrl);
     const visits = response?.data?.allVisits || [];
     const paginationData = response?.data?.pagination || { total: 0, page: 1, limit: 10, totalPages: 1 };
+
+    const handleStatusFilterChange = (e) => {
+        setSelectedStatusFilter(e.target.value);
+        setPage(1);
+    };
 
     // ---- Get Status List for the Select Dropdown ----
     const { data: statusResponse } = useGet("/api/admin/visits/lists");
@@ -295,6 +305,17 @@ const Visits = () => {
 
     return (
         <div className="container mx-auto py-10">
+            {/* Total Visits Overview */}
+            <div className="mb-6 bg-gradient-to-r from-blue-600 to-blue-800 p-6 rounded-2xl shadow-lg flex items-center justify-between text-white">
+                <div>
+                    <h2 className="text-sm font-medium uppercase tracking-wider text-blue-100 mb-1">Total Visits</h2>
+                    <p className="text-4xl font-extrabold">{paginationData.total}</p>
+                </div>
+                <div className="bg-white/20 p-4 rounded-full">
+                    <MapPin className="h-8 w-8 text-white" />
+                </div>
+            </div>
+
             {/* Year & Month Filter */}
             <div className="mb-4 bg-white p-4 rounded-lg border border-gray-200 shadow-sm flex flex-col gap-4">
                 <div className="flex items-center gap-3">
@@ -343,6 +364,26 @@ const Visits = () => {
                         );
                     })}
                 </div>
+            </div>
+
+            {/* Controls Section: Filter */}
+            <div className="mb-4 bg-white p-4 rounded-lg border border-gray-200 shadow-sm flex items-center gap-3">
+                <label htmlFor="status-filter" className="text-sm font-semibold text-gray-700">
+                    Filter by Status:
+                </label>
+                <select
+                    id="status-filter"
+                    className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white min-w-[200px]"
+                    value={selectedStatusFilter}
+                    onChange={handleStatusFilterChange}
+                >
+                    <option value="">All Statuses (Show All)</option>
+                    {statusList.map((s) => (
+                        <option key={s.id} value={s.id}>
+                            {s.name}
+                        </option>
+                    ))}
+                </select>
             </div>
 
             <DataTable
