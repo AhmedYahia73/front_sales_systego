@@ -96,7 +96,7 @@ const Sales = () => {
         {
             accessorKey: "product",
             header: "Product",
-            render: (row) => row.product?.name || row.product_name || "-",
+            render: (row) => row.product || "-",
         },
         { accessorKey: "visit_status", header: "Status" },
         { accessorKey: "status", header: "Sales Status" },   
