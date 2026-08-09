@@ -217,6 +217,7 @@ const Visits = () => {
         { accessorKey: "name", header: "Name" },
         { accessorKey: "address", header: "Address" },
         { accessorKey: "phone", header: "Phone" },
+        { accessorKey: "createdAt", header: "Date" },
         {
             accessorKey: "product",
             header: "Product",
