@@ -69,6 +69,8 @@ const VisitsAdd = () => {
     return {
       id: rawData.id,
       name: rawData.name,
+      owner_name: rawData.owner_name || "",
+      owner_phone: rawData.owner_phone || "",
       address: rawData.address,
       notes: rawData.notes,
       phone: rawData.phone,
@@ -89,7 +91,7 @@ const VisitsAdd = () => {
     <AddPage
       title="Visit"
       apiUrl="/api/admin/visits"
-      initialData={isEdit ? initialData : { lat: DEFAULT_CENTER.lat, lng: DEFAULT_CENTER.lng }}
+      initialData={isEdit ? initialData : { lat: DEFAULT_CENTER.lat, lng: DEFAULT_CENTER.lng, owner_name: "", owner_phone: "" }}
       onSuccessAction={() => window.history.back()}
       // "status" مطلوب في الـ payload كنوع ثابت للسجل (مش نفس status_id)
       transformPayload={(data) => ({ ...data, status: "visit" })}
@@ -175,6 +177,27 @@ const VisitsAdd = () => {
                       Phone field is required
                     </span>
                   )}
+                </div>
+
+                {/* Owner Name Field */}
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Owner Name <span className="text-xs text-muted-foreground font-normal">(Optional)</span></Label>
+                  <Input
+                    {...register("owner_name")}
+                    placeholder="e.g. Owner name"
+                    className="h-10 text-sm rounded-md"
+                  />
+                </div>
+
+                {/* Owner Phone Field */}
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Owner Phone <span className="text-xs text-muted-foreground font-normal">(Optional)</span></Label>
+                  <Input
+                    type="tel"
+                    {...register("owner_phone")}
+                    placeholder="e.g. 01012345678"
+                    className="h-10 text-sm rounded-md"
+                  />
                 </div>
 
                 {/* 3. Status Search Select */}
