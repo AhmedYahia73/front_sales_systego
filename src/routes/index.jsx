@@ -8,6 +8,8 @@ import Visits from '@/Pages/Visits/Visits';
 import VisitsAdd from '@/Pages/Visits/VisitsAdd';
 import Sales from '@/Pages/Sales/Sales';
 import WishList from '@/Pages/WishList/WishList';
+import Leads from '@/Pages/Leads/Leads';
+import LeadsAdd from '@/Pages/Leads/LeadsAdd';
 
 
 // Protected Route Wrapper
@@ -46,6 +48,11 @@ export const router = createBrowserRouter([
       { path: 'visits', element: <Visits /> },
       { path: 'visits/add', element: <VisitsAdd /> },
       { path: 'visits/:id/edit', element: <VisitsAdd /> },
+
+      // leads
+      { path: 'leads', element: <Leads /> },
+      { path: 'leads/add', element: <LeadsAdd /> },
+      { path: 'leads/:id/edit', element: <LeadsAdd /> },
       
       { path: 'wishlist', element: <WishList /> },
 
