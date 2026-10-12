@@ -5,6 +5,7 @@ import {
   TrendingUp, Award, Shield, UserCog, LayoutDashboard, Menu, Contact
 } from 'lucide-react';
 import { useGet } from '@/hooks/useGet';
+import { brandConfig } from '@/utils/brand';
 
 const menuItems = [
   { name: 'Dashboard', path: '/home', icon: <LayoutDashboard size={20} /> },
@@ -30,7 +31,7 @@ export const Sidebar = ({ isOpen, toggleSidebar }) => {
       {/* زر التبديل واللوجو */}
       <div className="p-6 flex items-center justify-between cursor-pointer" onClick={toggleSidebar}>
         {isOpen ? (
-          <h1 className="text-xl font-bold text-primary truncate">Keeto Sales</h1>
+          <h1 className="text-xl font-bold text-primary truncate">{brandConfig.appTitle}</h1>
         ) : (
           <div className="w-full flex justify-center text-primary">
             <Menu size={24} />
