@@ -345,19 +345,19 @@ const Visits = () => {
     ];
 
     return (
-        <div className="container mx-auto py-10">
-            <div className="flex flex-col xl:flex-row gap-6 mb-6">
+        <div className="w-full max-w-7xl mx-auto py-4 sm:py-6 space-y-4 sm:space-y-6">
+            <div className="flex flex-col xl:flex-row gap-4 sm:gap-6 mb-4 sm:mb-6">
                 {/* Left Side: Filters */}
-                <div className="flex-1 flex flex-col gap-4">
+                <div className="flex-1 flex flex-col gap-4 min-w-0">
                     {/* Year & Month Filter */}
-                    <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm flex flex-col gap-4">
-                        <div className="flex items-center gap-3">
-                            <label htmlFor="year-filter" className="text-sm font-semibold text-gray-700">
+                    <div className="bg-white p-3.5 sm:p-4 rounded-xl border border-gray-200 shadow-xs flex flex-col gap-3 sm:gap-4">
+                        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                            <label htmlFor="year-filter" className="text-xs sm:text-sm font-semibold text-gray-700">
                                 Filter by Year:
                             </label>
                             <select
                                 id="year-filter"
-                                className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white min-w-[120px]"
+                                className="border border-gray-300 rounded-md px-2.5 py-1.5 sm:py-2 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white w-full sm:w-auto min-w-[120px]"
                                 value={selectedYear}
                                 onChange={(e) => {
                                     setSelectedYear(e.target.value);
@@ -370,9 +370,9 @@ const Visits = () => {
                             </select>
                         </div>
                         
-                        <div className="flex flex-wrap gap-2">
+                        <div className="flex flex-wrap gap-1.5 sm:gap-2">
                             <button
-                                className={`px-3 py-1.5 text-sm rounded-md transition-colors ${selectedMonths.length === 0 ? "bg-primary text-primary-foreground font-semibold shadow-md" : "bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200"}`}
+                                className={`px-2.5 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm rounded-md transition-colors ${selectedMonths.length === 0 ? "bg-primary text-primary-foreground font-semibold shadow-md" : "bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200"}`}
                                 onClick={() => { setSelectedMonths([]); setPage(1); }}
                             >
                                 All Months
@@ -382,7 +382,7 @@ const Visits = () => {
                                 return (
                                     <button
                                         key={m.value}
-                                        className={`px-3 py-1.5 text-sm rounded-md transition-colors ${isSelected ? "bg-primary text-primary-foreground font-semibold shadow-md" : "bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200"}`}
+                                        className={`px-2.5 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm rounded-md transition-colors ${isSelected ? "bg-primary text-primary-foreground font-semibold shadow-md" : "bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200"}`}
                                         onClick={() => { 
                                             if (isSelected) {
                                                 setSelectedMonths(selectedMonths.filter(x => x !== m.value));
@@ -400,13 +400,13 @@ const Visits = () => {
                     </div>
 
                     {/* Controls Section: Filter */}
-                    <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm flex flex-wrap items-center gap-3">
-                        <label htmlFor="status-filter" className="text-sm font-semibold text-gray-700">
+                    <div className="bg-white p-3.5 sm:p-4 rounded-xl border border-gray-200 shadow-xs flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
+                        <label htmlFor="status-filter" className="text-xs sm:text-sm font-semibold text-gray-700 whitespace-nowrap">
                             Filter by Status:
                         </label>
                         <select
                             id="status-filter"
-                            className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white min-w-[200px]"
+                            className="border border-gray-300 rounded-md px-3 py-2 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white w-full sm:w-auto min-w-[200px]"
                             value={selectedStatusFilter}
                             onChange={handleStatusFilterChange}
                         >
@@ -422,11 +422,11 @@ const Visits = () => {
 
                 {/* Right Side: Total Visits Overview */}
                 <div className="shrink-0 flex items-stretch">
-                    <div className={brandConfig.overviewCardClass} style={{ width: 'calc(var(--spacing) * 55)' }}>
+                    <div className={`${brandConfig.overviewCardClass} w-full xl:w-60`}>
                         <div className={brandConfig.overviewIconWrapperClass}>
                             <MapPin className={brandConfig.overviewIconClass} />
                         </div>
-                        <p className="text-5xl font-extrabold leading-none mb-2">{paginationData.total}</p>
+                        <p className="text-4xl sm:text-5xl font-extrabold leading-none mb-2">{paginationData.total}</p>
                         <h2 className={brandConfig.overviewLabelClass}>Total Visits</h2>
                     </div>
                 </div>
@@ -447,17 +447,18 @@ const Visits = () => {
             />
 
             {/* Pagination Controls */}
-            <div className="flex items-center justify-between mt-4 bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
-                <div className="text-sm text-gray-600">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mt-4 bg-white p-3.5 sm:p-4 rounded-xl border border-gray-200 shadow-xs">
+                <div className="text-xs sm:text-sm text-gray-600 text-center sm:text-left">
                     Showing page <span className="font-semibold">{paginationData.page}</span> of{" "}
                     <span className="font-semibold">{paginationData.totalPages || 1}</span> (Total: {paginationData.total})
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 w-full sm:w-auto justify-center">
                     <Button
                         variant="outline"
                         size="sm"
                         onClick={() => setPage((old) => Math.max(old - 1, 1))}
                         disabled={page === 1 || isLoading}
+                        className="flex-1 sm:flex-initial"
                     >
                         Previous
                     </Button>
@@ -466,6 +467,7 @@ const Visits = () => {
                         size="sm"
                         onClick={() => setPage((old) => Math.min(old + 1, paginationData.totalPages))}
                         disabled={page >= paginationData.totalPages || isLoading}
+                        className="flex-1 sm:flex-initial"
                     >
                         Next
                     </Button>
@@ -498,7 +500,7 @@ const Visits = () => {
                             return (
                                 <div
                                     key={idx}
-                                    className="flex items-center gap-2 bg-gray-50 p-2.5 rounded-md border"
+                                    className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 bg-gray-50 p-2.5 rounded-md border"
                                 >
                                     <select
                                         className="flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
@@ -549,8 +551,8 @@ const Visits = () => {
                                         <Button
                                             type="button"
                                             variant="ghost"
-                                            size="icon"
-                                            className="text-red-500 hover:text-red-700"
+                                            size="sm"
+                                            className="text-red-500 hover:text-red-700 sm:h-9 sm:w-9 self-end sm:self-auto"
                                             onClick={() =>
                                                 setSelectedProducts(
                                                     selectedProducts.filter(
@@ -560,6 +562,7 @@ const Visits = () => {
                                             }
                                         >
                                             <Trash2 className="h-4 w-4" />
+                                            <span className="sm:hidden text-xs ml-1">Remove</span>
                                         </Button>
                                     )}
                                 </div>

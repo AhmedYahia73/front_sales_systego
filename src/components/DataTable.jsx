@@ -49,10 +49,10 @@ export const DataTable = ({
     <div className="space-y-4 w-full">
       {/* العنوان وزر الإضافة وحقل البحث في الهيدر العلوي للجدول */}
       {(title || (showAdd && onAdd) || showSearchInput) && (
-        <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
-          {title && <h2 className="text-xl font-bold text-gray-800">{title}</h2>}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+          {title && <h2 className="text-lg sm:text-xl font-bold text-gray-800">{title}</h2>}
 
-          <div className="flex items-center gap-3 ml-auto">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
             {/* حقل البحث الموحد */}
             {showSearchInput && (
               <div className="relative w-full sm:w-72">
@@ -68,7 +68,7 @@ export const DataTable = ({
 
             {/* زر الإضافة */}
             {showAdd && onAdd && (
-              <Button onClick={onAdd} className="gap-2 shrink-0">
+              <Button onClick={onAdd} className="gap-2 shrink-0 w-full sm:w-auto">
                 <Plus className="h-4 w-4" /> Add
               </Button>
             )}
@@ -77,8 +77,9 @@ export const DataTable = ({
       )}
 
       {/* الجدول */}
-      <div className="rounded-xl border border-gray-200 overflow-hidden bg-white shadow-sm">
-        <Table>
+      <div className="rounded-xl border border-gray-200 overflow-hidden bg-white shadow-xs">
+        <div className="overflow-x-auto -webkit-overflow-scrolling-touch">
+          <Table>
           <TableHeader className="bg-gray-50/50">
             <TableRow>
               {columns.map((col, index) => (
@@ -152,6 +153,7 @@ export const DataTable = ({
             )}
           </TableBody>
         </Table>
+        </div>
       </div>
     </div>
   );

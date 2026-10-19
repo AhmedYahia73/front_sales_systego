@@ -204,7 +204,7 @@ const WishList = () => {
     };
 
     return (
-        <div className="container mx-auto py-10">
+        <div className="w-full max-w-7xl mx-auto py-4 sm:py-6 space-y-4 sm:space-y-6">
             <DataTable
                 title="Wish List Management"
                 columns={columns}
@@ -218,17 +218,18 @@ const WishList = () => {
             />
 
             {/* Pagination Controls */}
-            <div className="flex items-center justify-between mt-4 bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
-                <div className="text-sm text-gray-600">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mt-4 bg-white p-3.5 sm:p-4 rounded-xl border border-gray-200 shadow-xs">
+                <div className="text-xs sm:text-sm text-gray-600 text-center sm:text-left">
                     Showing page <span className="font-semibold">{paginationData.page}</span> of{" "}
                     <span className="font-semibold">{paginationData.totalPages || 1}</span> (Total: {paginationData.total})
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 w-full sm:w-auto justify-center">
                     <Button
                         variant="outline"
                         size="sm"
                         onClick={() => setPage((old) => Math.max(old - 1, 1))}
                         disabled={page === 1 || isLoading}
+                        className="flex-1 sm:flex-initial"
                     >
                         Previous
                     </Button>
@@ -237,6 +238,7 @@ const WishList = () => {
                         size="sm"
                         onClick={() => setPage((old) => Math.min(old + 1, paginationData.totalPages))}
                         disabled={page >= paginationData.totalPages || isLoading}
+                        className="flex-1 sm:flex-initial"
                     >
                         Next
                     </Button>
